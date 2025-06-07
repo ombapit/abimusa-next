@@ -24,7 +24,7 @@ function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full p-4 flex justify-between items-center bg-white/60 backdrop-blur-lg shadow-lg text-black z-50 border border-white/10">
+      <nav className="fixed top-0 left-0 w-full p-4 flex justify-between items-center bg-white/60 shadow-lg text-black z-50 border border-white/10">
         <h1 className="text-xl font-bold">Masjid Abi Musa Al-Asy&apos;ari</h1>
         <button className="md:hidden cursor-pointer" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X size={24} /> : <Menu size={24} />}

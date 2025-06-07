@@ -3,16 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { Navbar } from "@/components/navbar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "Masjid Abi Musa Al-Asy'ari",
   description: "Website Informasi Masjid Abi Musa Al-Asy'ari",
@@ -26,15 +16,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"></link>
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`font-inter antialiased`}
       >
         <div className="min-h-screen bg-gray-100">
-      {/* Navbar */}
-      <Navbar/>            
+          {/* Navbar */}
+          <Navbar/>            
 
-      {children}
-    </div>        
+          {children}
+        </div>        
       </body>
     </html>
   );

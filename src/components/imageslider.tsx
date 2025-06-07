@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const images = [
   '/images/slide1.jpg',
-  '/images/slide2.jpg',
 ];
 
 const ImageSlider = () => {
@@ -36,22 +35,11 @@ const ImageSlider = () => {
   }, [currentIndex, isPaused]);
 
   return (
-    <div className="relative w-full h-[300px] md:h-[500px] overflow-hidden"
-      onMouseEnter={() => setIsPaused(true)} // Pause saat hover
-      onMouseLeave={() => setIsPaused(false)} // Resume saat tidak hover
+    <div className="relative w-full h-screen overflow-hidden"
+      // onMouseEnter={() => setIsPaused(true)} // Pause saat hover
+      // onMouseLeave={() => setIsPaused(false)} // Resume saat tidak hover
     >
-      <div className="flex items-center justify-center h-full">
-        {/* Gambar Blur Kiri (Hanya tampil di desktop) */}
-        <motion.img
-          key={`left-${currentIndex}`}
-          src={images[currentIndex > 0 ? currentIndex - 1 : images.length - 1]}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="hidden md:block absolute left-0 w-1/3 h-full object-cover blur-sm"
-        />
-
+      <div className="flex items-center justify-center h-full">        
         {/* Gambar Utama (Tengah) */}
         <AnimatePresence mode="wait">
           <motion.img
@@ -61,20 +49,9 @@ const ImageSlider = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="absolute w-full md:w-2/3 h-full object-center z-10"
+            className="absolute w-full h-full object-cover z-10"
           />
         </AnimatePresence>
-
-        {/* Gambar Blur Kanan (Hanya tampil di desktop) */}
-        <motion.img
-          key={`right-${currentIndex}`}
-          src={images[currentIndex < images.length - 1 ? currentIndex + 1 : 0]}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="hidden md:block absolute right-0 w-1/3 h-full object-cover blur-sm"
-        />
       </div>
 
       {/* Tombol Previous */}
