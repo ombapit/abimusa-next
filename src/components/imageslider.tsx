@@ -35,7 +35,7 @@ const ImageSlider = () => {
   }, [currentIndex, isPaused]);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden"
+    <div className="relative w-full h-56 md:h-screen overflow-hidden"
       // onMouseEnter={() => setIsPaused(true)} // Pause saat hover
       // onMouseLeave={() => setIsPaused(false)} // Resume saat tidak hover
     >
@@ -49,9 +49,18 @@ const ImageSlider = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="absolute w-full h-full object-cover z-10"
+            className="absolute w-full h-full object-fill md:object-cover z-10"
           />
         </AnimatePresence>
+
+        <div className="absolute inset-0 bg-black/20 z-20"></div>
+
+        <div className="row align-items-center z-50">
+          <div className="hero hidden md:block">     
+            <h1>Masjid Abi Musa Al Asy'ari</h1>
+            <p>Bukit Cendana RT 006/09</p>
+          </div>
+        </div>
       </div>
 
       {/* Tombol Previous */}

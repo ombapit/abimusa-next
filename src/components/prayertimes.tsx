@@ -78,15 +78,18 @@ const PrayerTimes = () => {
   return (
     <div className="p-4">
       <h2 className="text-center text-xl font-bold mb-4">
-        Jadwal Sholat Kabupaten Bogor {date}
+        <p>Jadwal Sholat Kabupaten Bogor</p>
+        <p>{date}</p>
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {Object.entries(prayerTimes).map(([prayer, time]: [string, string]) => (
-          <Card key={prayer} className="p-4 bg-white shadow rounded-lg text-center">
-            <h3 className="font-semibold">{prayer}</h3>
-            <p className="text-lg font-bold">{time}</p>
-          </Card>
-        ))}
+      <div className="w-full px-4 flex justify-center">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 max-w-screen-md w-full">
+          {Object.entries(prayerTimes).map(([prayer, time]: [string, string]) => (
+            <Card key={prayer} className="flex flex-col gap-2 border p-4 bg-white shadow rounded text-center">
+              <h3 className="font-semibold">{prayer}</h3>
+              <p className="text-lg font-bold">{time}</p>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   )
