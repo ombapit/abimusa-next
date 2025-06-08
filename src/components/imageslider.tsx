@@ -9,7 +9,7 @@ const images = [
 
 const ImageSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false); // State untuk pause/resume auto-slide
+  const [isPaused] = useState(false); // State untuk pause/resume auto-slide
 
   const nextSlide = () => {
     setCurrentIndex((prevIndex) => 
@@ -57,7 +57,7 @@ const ImageSlider = () => {
 
         <div className="row align-items-center z-50">
           <div className="hero hidden md:block">     
-            <h1>Masjid Abi Musa Al Asy'ari</h1>
+            <h1>Masjid Abi Musa Al Asy&apos;ari</h1>
             <p>Bukit Cendana RT 006/09</p>
           </div>
         </div>

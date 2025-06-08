@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import { Navbar } from "@/components/navbar";
 import ScrollToTop from "../ScrollToTop";
 
 export const metadata: Metadata = {
-  title: "Masjid Abi Musa Al-Asy'ari",
-  description: "Website Informasi Masjid Abi Musa Al-Asy'ari",
+  title: "Masjid Abi Musa Al-Asy&apos;ari",
+  description: "Website Informasi Masjid Abi Musa Al-Asy&apos;ari",
   icons: "/images/favicon.ico"
 };
 

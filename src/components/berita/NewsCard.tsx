@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Props {
   article: {
@@ -23,7 +24,7 @@ interface Props {
 }
 
 export default function NewsCard({ article }: Props) {
-  const { title, description, slug, publishedAt, cover, blocks } = article
+  const { title, slug, publishedAt, cover, blocks } = article
   const imageUrl = cover?.formats?.thumbnail?.url
   const fullImageUrl = imageUrl?.startsWith('http')
     ? imageUrl
@@ -34,7 +35,7 @@ export default function NewsCard({ article }: Props) {
       {imageUrl && (
         <div className="w-1/3">
           <Link href={`/berita/${slug}`}>
-            <img
+            <Image
               src={fullImageUrl}
               alt={title}
               className="object-cover h-full w-full"

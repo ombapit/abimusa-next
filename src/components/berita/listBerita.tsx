@@ -28,7 +28,7 @@ export default function ListBerita() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('https://api.abimusaalasyari.my.id/api/articles?populate=*')
+    fetch('https://api.abimusaalasyari.my.id/api/articles?sort=publishedAt:desc&populate=*')
       .then((res) => res.json())
       .then((data) => setArticles(data.data))
       .catch((err) => setError(err.message))

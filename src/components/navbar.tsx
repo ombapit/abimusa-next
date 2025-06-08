@@ -7,18 +7,18 @@ import Link from 'next/link';
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [submenuOpen, setSubmenuOpen] = useState<string | null>(null);
-  const [subSubmenuOpen, setSubSubmenuOpen] = useState<string | null>(null);
+  // const [subSubmenuOpen, setSubSubmenuOpen] = useState<string | null>(null);
 
   const handleMouseEnter = (menu: string) => {
     setSubmenuOpen(menu);
-    setSubSubmenuOpen(null);
+    // setSubSubmenuOpen(null);
     clearTimeout(window.submenuTimeout);
   };
   
   const handleMouseLeave = () => {
     window.submenuTimeout = setTimeout(() => {
       setSubmenuOpen(null);
-      setSubSubmenuOpen(null);
+      // setSubSubmenuOpen(null);
     }, 200);
   };
 

@@ -1,9 +1,6 @@
 import { notFound } from 'next/navigation'
 import { marked } from 'marked'
-
-interface Params {
-  slug: string
-}
+import Image from 'next/image';
 
 async function getArticle(slug: string) {
   const res = await fetch(`https://api.abimusaalasyari.my.id/api/articles?filters[slug][$eq]=${slug}&populate=*`, {
@@ -25,9 +22,13 @@ async function getArticle(slug: string) {
   }
 }
 
-export default async function ArticlePage({ params }: { params: Params }) {
-  const resolvedParams = await params
-  const article = await getArticle(resolvedParams.slug)
+type PageProps = {
+  params: Promise<{ slug: string }>
+}
+
+export default async function ArticlePage({ params }: PageProps) {
+  const { slug } = await params
+  const article = await getArticle(slug)
   if (!article) return notFound()
 
   const htmlContent = marked(article.content)
@@ -39,12 +40,12 @@ export default async function ArticlePage({ params }: { params: Params }) {
         {new Date(article.publishedAt).toLocaleDateString('id-ID', {
           day: 'numeric',
           month: 'long',
-          year: 'numeric'
+          year: 'numeric',
         })}
       </p>
 
       {article.image && (
-        <img
+        <Image
           src={article.image}
           alt={article.title}
           className="w-full h-auto mb-4"
