@@ -35,11 +35,14 @@ export default function NewsCard({ article }: Props) {
       {imageUrl && (
         <div className="w-1/3">
           <Link href={`/berita/${slug}`}>
-            <Image
-              src={fullImageUrl}
-              alt={title}
-              className="object-cover h-full w-full"
-            />
+            <div className="w-full relative h-full">
+              <Image
+                src={fullImageUrl}
+                alt={title}
+                fill
+                style={{ objectFit: 'cover' }} // atau 'cover' sesuai kebutuhan
+              />
+            </div>
           </Link>
         </div>
       )}

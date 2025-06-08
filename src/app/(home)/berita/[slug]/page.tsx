@@ -45,11 +45,14 @@ export default async function ArticlePage({ params }: PageProps) {
       </p>
 
       {article.image && (
-        <Image
-          src={article.image}
-          alt={article.title}
-          className="w-full h-auto mb-4"
-        />
+        <div className="w-full relative mb-6" style={{ aspectRatio: '16 / 9' }}>
+          <Image
+            src={article.image}
+            alt={article.title}
+            fill
+            style={{ objectFit: 'cover' }} // atau 'cover' sesuai kebutuhan
+          />
+        </div>
       )}
 
       <div
