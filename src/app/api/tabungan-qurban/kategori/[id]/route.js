@@ -25,7 +25,7 @@ export async function GET(request, { params }) {
         SELECT
         a.id,concat(a.nama," - ", a.alamat) as nama,
         COALESCE(sum(jumlah), 0) as total_bayar,
-        (c.target - COALESCE(sum(jumlah), 0)) as sisa
+        (c.target/7 - COALESCE(sum(jumlah), 0)) as sisa
         from peserta_qurban a
         left join pembayaran_qurban b on a.id = b.pq_id
         join kelompok_qurban c on a.kq_id = c.id

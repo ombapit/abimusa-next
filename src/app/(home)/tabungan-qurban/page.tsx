@@ -307,6 +307,7 @@ export default function TabunganQurban() {
   const [isClient, setIsClient] = useState(false)
   const [peserta, setPeserta] = useState<Peserta[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [notFound, setNotFound] = useState(false)
   const [selectedKelompok, setSelectedKelompok] = useState<string>('')
   const [error, setError] = useState<string>('')
   const [selectedPeserta, setSelectedPeserta] = useState<Peserta | null>(null)
@@ -404,6 +405,10 @@ export default function TabunganQurban() {
       await new Promise(resolve => setTimeout(resolve, 1000))
       
       setPeserta(data || [])
+
+      if (data.length == 0) {
+        setNotFound(true)
+      }
       
       // Find the kelompok name from cards
       const selectedCard = cards.find(card => card.id === id)
@@ -414,64 +419,7 @@ export default function TabunganQurban() {
       console.error('Error fetching peserta:', err)
       
       // Data dummy untuk demo dengan payment details
-      const dummyData: Peserta[] = [
-        {
-          id: 1,
-          nama: "Ahmad Wijaya",
-          total_bayar: 2000000,
-          sisa: 23900000,
-          payments: [
-            {
-              id: 1,
-              tanggal: "2024-01-15",
-              jumlah: 500000,
-              keterangan: "Pembayaran cicilan pertama",
-              metode: "Transfer Bank",
-              bukti_transfer: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=600&fit=crop"
-            },
-            {
-              id: 2,
-              tanggal: "2024-02-15",
-              jumlah: 500000,
-              keterangan: "Pembayaran cicilan kedua",
-              metode: "Cash",
-              bukti_transfer: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=600&fit=crop"
-            },
-            {
-              id: 3,
-              tanggal: "2024-03-15",
-              jumlah: 1000000,
-              keterangan: "Pelunasan",
-              metode: "Transfer Bank",
-              bukti_transfer: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=600&fit=crop"
-            }
-          ]
-        },
-        {
-          id: 2,
-          nama: "Siti Nurhaliza",
-          total_bayar: 1500000,
-          sisa: 24400000,
-          payments: [
-            {
-              id: 4,
-              tanggal: "2024-01-20",
-              jumlah: 750000,
-              keterangan: "Pembayaran awal",
-              metode: "E-Wallet",
-              bukti_transfer: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=600&fit=crop"
-            },
-            {
-              id: 5,
-              tanggal: "2024-02-20",
-              jumlah: 750000,
-              keterangan: "Cicilan kedua",
-              metode: "Transfer Bank",
-              bukti_transfer: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400&h=600&fit=crop"
-            }
-          ]
-        }
-      ]
+      const dummyData: Peserta[] = []
       
       setPeserta(dummyData)
       
@@ -551,7 +499,7 @@ export default function TabunganQurban() {
       )}
 
       {/* Table Peserta */}
-      {!isLoading && peserta.length > 0 && (
+      {!isLoading && peserta.length > 0 ? (
         <div id="peserta-section" className="my-8">
           <h2 className="font-bold text-2xl mb-4">List Peserta {selectedKelompok}</h2>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -611,7 +559,16 @@ export default function TabunganQurban() {
             </div>
           </div>
         </div>
-      )}
+      ) : !isLoading && notFound == true ? (
+        <div id="peserta-section" className="mt-8">
+          <h2 className="font-bold text-2xl mb-4">List Peserta {selectedKelompok}</h2>
+          <div className="bg-white rounded-lg shadow-md p-8">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <p className="text-gray-600">Data tidak ditemukan...</p>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* Payment Detail Modal */}
       <PaymentDetailModal
