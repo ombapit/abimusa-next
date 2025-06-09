@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Masjid Abi Musa Al-Asy&apos;ari",
-  description: "Jadwal Sholat Masjid Abi Musa Al-Asy&apos;ari",
+  title: "Masjid Abi Musa Al-Asy'ari",
+  description: "Jadwal Sholat Masjid Abi Musa Al-Asy'ari",
   icons: "/images/favicon.ico"
 };
 

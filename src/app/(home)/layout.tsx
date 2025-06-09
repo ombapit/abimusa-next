@@ -4,8 +4,8 @@ import { Navbar } from "@/components/navbar";
 import ScrollToTop from "../ScrollToTop";
 
 export const metadata: Metadata = {
-  title: "Masjid Abi Musa Al-Asy&apos;ari",
-  description: "Website Informasi Masjid Abi Musa Al-Asy&apos;ari",
+  title: "Masjid Abi Musa Al-Asy'ari",
+  description: "Website Informasi Masjid Abi Musa Al-Asy'ari",
   icons: "/images/favicon.ico"
 };
 
