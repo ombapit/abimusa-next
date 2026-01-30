@@ -1,142 +1,109 @@
 // app/api/donatur-ramadhan/route.js
-import { Pool } from 'pg';
+import mysql from 'mysql2/promise';
 
-// Konfigurasi koneksi ke PostgreSQL
-const pool = new Pool({
+// Konfigurasi koneksi ke MariaDB
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
+  port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  schema: 'public',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
 export async function GET() {
+  let conn;
   try {
-    // Membuat koneksi ke database
-    const client = await pool.connect();
+    conn = await pool.getConnection();
 
-    try {
-      // Query ke tabel donatur_ramadhan (sesuaikan nama tabel jika berbeda)
-      const result = await client.query(`
-        SELECT id, nama, jenis_pembayaran, jumlah, created_at
-        FROM donasi
-        where jenis='ramadhan'
-        ORDER BY id ASC
-      `);
+    const [rows] = await conn.query(`
+      SELECT id, nama, jenis_pembayaran, jumlah, created_at
+      FROM donasi
+      WHERE jenis = 'ramadhan'
+      ORDER BY id ASC
+    `);
 
-      // Mengembalikan data dalam format JSON
-      return new Response(JSON.stringify(result.rows), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    } finally {
-      // Melepaskan koneksi kembali ke pool
-      client.release();
-    }
+    return new Response(JSON.stringify(rows), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+
   } catch (error) {
     console.error('Error querying database:', error);
     return new Response(
       JSON.stringify({ error: 'Internal Server Error' }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
+  } finally {
+    if (conn) conn.release();
   }
 }
 
 export async function POST(request) {
+  let conn;
   try {
-    // Parse body request
     const body = await request.json();
 
-    // Validasi input
-    if (body.kode_akses != "dkm") {
+    // Validasi akses
+    if (body.kode_akses !== 'dkm') {
       return new Response(
         JSON.stringify({ error: 'Kode Akses Salah' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    if (!body.nama || !body.nama || !body.jenis_pembayaran || !body.jumlah) {
+
+    if (!body.nama || !body.jenis_pembayaran || !body.jumlah) {
       return new Response(
         JSON.stringify({ error: 'Nama, jenis pembayaran, dan jumlah harus diisi' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Membuat koneksi ke database
-    const client = await pool.connect();
+    conn = await pool.getConnection();
 
-    try {
-      // Query untuk insert data
-      const result = await client.query(
-        `INSERT INTO donasi 
-        (nama, jenis_pembayaran, jumlah, jenis, created_at) 
-        VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-        RETURNING id, nama, jenis_pembayaran, jumlah, created_at`,
-        [body.nama, body.jenis_pembayaran, body.jumlah, 'ramadhan']
-      );
+    const [result] = await conn.execute(
+      `INSERT INTO donasi
+       (nama, jenis_pembayaran, jumlah, jenis, created_at)
+       VALUES (?, ?, ?, ?, NOW())`,
+      [body.nama, body.jenis_pembayaran, body.jumlah, 'ramadhan']
+    );
 
-      // Return data yang baru ditambahkan
-      return new Response(
-        JSON.stringify(result.rows[0]),
-        {
-          status: 201,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    // Ambil data yang baru diinsert
+    const [rows] = await conn.query(
+      `SELECT id, nama, jenis_pembayaran, jumlah, created_at
+       FROM donasi
+       WHERE id = ?`,
+      [result.insertId]
+    );
 
-    } finally {
-      // Release connection
-      client.release();
-    }
+    return new Response(JSON.stringify(rows[0]), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
     console.error('Error inserting data:', error);
-    
-    // Handle specific database errors
-    if (error.code === '23505') { // unique violation
+
+    // Duplicate entry
+    if (error.code === 'ER_DUP_ENTRY') {
       return new Response(
         JSON.stringify({ error: 'Data sudah ada' }),
-        {
-          status: 409,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        { status: 409, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
       JSON.stringify({ error: 'Internal Server Error' }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
+  } finally {
+    if (conn) conn.release();
   }
 }
 
-// Optional: Menutup pool saat aplikasi dimatikan
+// Optional: close pool saat server shutdown
 process.on('SIGTERM', async () => {
   await pool.end();
 });

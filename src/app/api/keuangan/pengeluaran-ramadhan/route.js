@@ -1,149 +1,135 @@
-import { Pool } from 'pg';
+import mysql from 'mysql2/promise';
 
-// Konfigurasi koneksi ke PostgreSQL
-const pool = new Pool({
+// Konfigurasi koneksi MariaDB
+const pool = mysql.createPool({
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
+  port: process.env.DB_PORT || 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  schema: 'public',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
 export async function GET() {
+  let conn;
   try {
-    // Membuat koneksi ke database
-    const client = await pool.connect();
+    conn = await pool.getConnection();
 
-    try {
-      // Query ke tabel donatur_ramadhan (sesuaikan nama tabel jika berbeda)
-      const result = await client.query(`
-        SELECT id, tipe_transaksi, deskripsi, debit, kredit, saldo_awal, saldo_akhir, created_at, tanggal
-        FROM transaksi_keuangan
-        where tipe_transaksi='ramadhan'
-        ORDER BY id ASC
-      `);
+    const [rows] = await conn.query(`
+      SELECT id, tipe_transaksi, deskripsi, debit, kredit,
+             saldo_awal, saldo_akhir, created_at, tanggal
+      FROM transaksi_keuangan
+      WHERE tipe_transaksi = 'ramadhan'
+      ORDER BY id ASC
+    `);
 
-      // Mengembalikan data dalam format JSON
-      return new Response(JSON.stringify(result.rows), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    } finally {
-      // Melepaskan koneksi kembali ke pool
-      client.release();
-    }
+    return new Response(JSON.stringify(rows), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+
   } catch (error) {
     console.error('Error querying database:', error);
     return new Response(
       JSON.stringify({ error: 'Internal Server Error' }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
+  } finally {
+    if (conn) conn.release();
   }
 }
 
 export async function POST(request) {
+  let conn;
   try {
-    // Parse body request
     const body = await request.json();
 
-    // Validasi input
-    if (body.kode_akses != "dkm") {
+    // Validasi akses
+    if (body.kode_akses !== 'dkm') {
       return new Response(
         JSON.stringify({ error: 'Kode Akses Salah' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!body.deskripsi || !body.debit || !body.kredit) {
+    if (!body.deskripsi || body.debit === undefined || body.kredit === undefined) {
       return new Response(
-        JSON.stringify({ error: 'Deskripsi, Debit/Kredit harus diisi' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        JSON.stringify({ error: 'Deskripsi, Debit, dan Kredit harus diisi' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Membuat koneksi ke database
-    const client = await pool.connect();
+    conn = await pool.getConnection();
 
-    try {
-      // Ambil saldo terakhir (jika tabel kosong, gunakan 0)
-      const saldoQuery = await client.query("SELECT COALESCE(saldo_akhir, 0) AS saldo_awal FROM transaksi_keuangan where tipe_transaksi='ramadhan' order by id desc");
-      const saldoAwal = saldoQuery.rows.length > 0 ? saldoQuery.rows[0].saldo_awal : 0;
+    // Ambil saldo terakhir
+    const [saldoRows] = await conn.query(`
+      SELECT COALESCE(saldo_akhir, 0) AS saldo_awal
+      FROM transaksi_keuangan
+      WHERE tipe_transaksi = 'ramadhan'
+      ORDER BY id DESC
+      LIMIT 1
+    `);
 
-      // Hitung saldo akhir
-      const saldoAkhir = parseFloat(saldoAwal) + parseFloat(body.kredit - body.debit);
-    
-      // Query untuk insert data
-      const result = await client.query(
-        `INSERT INTO transaksi_keuangan 
-        (tipe_transaksi, deskripsi, debit, kredit, saldo_awal, saldo_akhir, tanggal, created_at) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
-        RETURNING id, tipe_transaksi, deskripsi, debit, kredit, saldo_awal, saldo_akhir, tanggal, created_at`,
-        ['ramadhan', body.deskripsi, body.debit, body.kredit, saldoAwal, saldoAkhir, body.tanggal]
-      );
-        
-      // Return data yang baru ditambahkan
-      return new Response(
-        JSON.stringify(result.rows[0]),
-        {
-          status: 201,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const saldoAwal = saldoRows.length ? Number(saldoRows[0].saldo_awal) : 0;
 
-    } finally {
-      // Release connection
-      client.release();
-    }
+    // Hitung saldo akhir
+    const debit  = Number(body.debit);
+    const kredit = Number(body.kredit);
+    const saldoAkhir = saldoAwal + kredit - debit;
+
+    // Insert data
+    const [result] = await conn.execute(
+      `INSERT INTO transaksi_keuangan
+       (tipe_transaksi, deskripsi, debit, kredit,
+        saldo_awal, saldo_akhir, tanggal, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        'ramadhan',
+        body.deskripsi,
+        debit,
+        kredit,
+        saldoAwal,
+        saldoAkhir,
+        body.tanggal,
+      ]
+    );
+
+    // Ambil data yang baru diinsert
+    const [rows] = await conn.query(
+      `SELECT id, tipe_transaksi, deskripsi, debit, kredit,
+              saldo_awal, saldo_akhir, tanggal, created_at
+       FROM transaksi_keuangan
+       WHERE id = ?`,
+      [result.insertId]
+    );
+
+    return new Response(JSON.stringify(rows[0]), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
     console.error('Error inserting data:', error);
-    
-    // Handle specific database errors
-    if (error.code === '23505') { // unique violation
+
+    if (error.code === 'ER_DUP_ENTRY') {
       return new Response(
         JSON.stringify({ error: 'Data sudah ada' }),
-        {
-          status: 409,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        { status: 409, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
       JSON.stringify({ error: 'Internal Server Error' }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
+  } finally {
+    if (conn) conn.release();
   }
 }
 
-// Optional: Menutup pool saat aplikasi dimatikan
+// Optional: close pool on shutdown
 process.on('SIGTERM', async () => {
   await pool.end();
 });
