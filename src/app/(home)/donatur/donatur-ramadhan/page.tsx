@@ -36,7 +36,7 @@ interface Donatur {
   nama: string;
   jumlah: string;
   jenis_pembayaran: string;
-  created_at: string;
+  tanggal: string;
 }
 interface ExcelRow {
   'No': number | string;
@@ -57,6 +57,7 @@ export default function DonaturRamadhan() {
     nama: '',
     jumlah: '',
     jenisPembayaran: 'Transfer',
+    tanggal: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -105,6 +106,7 @@ export default function DonaturRamadhan() {
           jumlah: formData.jumlah,
           jenis_pembayaran: formData.jenisPembayaran,
           kode_akses: formData.kodeAkses,
+          tanggal: formData.tanggal,
         }),
       });
 
@@ -131,7 +133,7 @@ export default function DonaturRamadhan() {
       'No': index + 1,
       'Nama': item.nama,
       'Jenis Pembayaran': item.jenis_pembayaran,
-      'Tanggal': new Date(item.created_at).toLocaleDateString('id-ID', {
+      'Tanggal': new Date(item.tanggal).toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -369,7 +371,7 @@ export default function DonaturRamadhan() {
                 <TableCell>{item.nama}</TableCell>
                 <TableCell>{item.jenis_pembayaran}</TableCell>
                 <TableCell>
-                  {new Date(item.created_at).toLocaleDateString('id-ID', {
+                  {new Date(item.tanggal).toLocaleDateString('id-ID', {
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric',

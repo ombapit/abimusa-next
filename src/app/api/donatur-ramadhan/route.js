@@ -19,7 +19,7 @@ export async function GET() {
     conn = await pool.getConnection();
 
     const [rows] = await conn.query(`
-      SELECT id, nama, jenis_pembayaran, jumlah, created_at
+      SELECT id, nama, jenis_pembayaran, jumlah, tanggal
       FROM donasi
       WHERE jenis = 'ramadhan'
       ORDER BY id ASC
@@ -65,14 +65,14 @@ export async function POST(request) {
 
     const [result] = await conn.execute(
       `INSERT INTO donasi
-       (nama, jenis_pembayaran, jumlah, jenis, created_at)
-       VALUES (?, ?, ?, ?, NOW())`,
-      [body.nama, body.jenis_pembayaran, body.jumlah, 'ramadhan']
+       (nama, jenis_pembayaran, jumlah, jenis, tanggal)
+       VALUES (?, ?, ?, ?, ?)`,
+      [body.nama, body.jenis_pembayaran, body.jumlah, 'ramadhan', body.tanggal]
     );
 
     // Ambil data yang baru diinsert
     const [rows] = await conn.query(
-      `SELECT id, nama, jenis_pembayaran, jumlah, created_at
+      `SELECT id, nama, jenis_pembayaran, jumlah, tanggal
        FROM donasi
        WHERE id = ?`,
       [result.insertId]
