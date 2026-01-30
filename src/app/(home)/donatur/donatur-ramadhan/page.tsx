@@ -113,7 +113,7 @@ export default function DonaturRamadhan() {
       if (response.ok) {
         const newDonatur = await response.json();
         setDonatur((prev) => [...prev, newDonatur]);
-        setFormData({ kodeAkses: 'dkm', nama: '', jumlah: '', jenisPembayaran: '' });
+        setFormData({ kodeAkses: 'dkm', nama: '', jumlah: '', jenisPembayaran: '', tanggal: '' });
         toast.success('Data berhasil disimpan!'); // Toast sukses
       } else {
         const resp = await response.json();
