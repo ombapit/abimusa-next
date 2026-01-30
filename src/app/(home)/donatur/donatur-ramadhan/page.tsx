@@ -335,6 +335,20 @@ export default function DonaturRamadhan() {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <label htmlFor="tanggal" className="block text-sm font-medium">
+                Tanggal
+              </label>
+              <Input
+                id="tanggal"
+                name="tanggal"
+                type="date"
+                value={formData.tanggal}
+                onChange={handleInputChange}
+                placeholder="Masukkan Tanggal"
+                required
+              />
+            </div>
             <Button 
               type="submit" 
               className="cursor-pointer"
