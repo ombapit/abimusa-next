@@ -31,7 +31,13 @@ function Navbar() {
         </button>
         <ul className="md:flex gap-8 hidden mr-48">
           <li><Link href="/" className="hover:underline">Home</Link></li>
-          <li><Link href="/tabungan-qurban" className="hover:underline">Tabungan Qurban</Link></li>
+          <li className="relative group" onMouseEnter={() => handleMouseEnter("tabqurban")} onMouseLeave={handleMouseLeave}>
+            <button className="flex items-center gap-1">Tabungan Qurban <ChevronDown size={16} /></button>
+            <ul className={`absolute left-0 top-full bg-black/40 backdrop-blur-lg shadow-lg rounded-lg mt-2 p-2 text-white ${submenuOpen === "tabqurban" ? "block" : "hidden"}`}>
+              <li><Link href="/tabungan-qurban" className="block px-4 py-2 hover:bg-destructive-foreground rounded">Dashboard</Link></li>
+              <li><Link href="/tabungan-qurban/pengeluaran" className="block px-4 py-2 hover:bg-destructive-foreground rounded">Pengeluaran</Link></li>
+            </ul>
+          </li>
           {/* Submenu Donatur */}
           {/* <li className="relative group" onMouseEnter={() => handleMouseEnter("donatur")} onMouseLeave={handleMouseLeave}>
             <button className="flex items-center gap-1">Donatur <ChevronDown size={16} /></button>
