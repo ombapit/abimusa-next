@@ -76,7 +76,13 @@ function Navbar() {
             <Link onClick={() => setMenuOpen(!menuOpen)} href="/" className="block">Home</Link>
           </li>
           <li>
-            <Link onClick={() => setMenuOpen(!menuOpen)} href="/tabungan-qurban" className="block">Tabungan Qurban</Link>
+            <button className="flex justify-between w-full" onClick={() => setSubmenuOpen(submenuOpen === "tabqurban" ? null : "tabqurban")}>Tabungan Qurban <ChevronDown size={16} /></button>
+            {submenuOpen === "tabqurban" && (
+              <ul className="pl-4 mt-2 space-y-2 text-white">
+                <li><Link onClick={() => setMenuOpen(!menuOpen)} href="/tabungan-qurban" className="block">Dashboard</Link></li>
+                <li><Link onClick={() => setMenuOpen(!menuOpen)} href="/tabungan-qurban/pengeluaran" className="block">Pengeluaran</Link></li>
+              </ul>
+            )}
           </li>
           {/* <li>
             <button className="flex justify-between w-full" onClick={() => setSubmenuOpen(submenuOpen === "donatur" ? null : "donatur")}>Donatur <ChevronDown size={16} /></button>
