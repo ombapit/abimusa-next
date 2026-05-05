@@ -6,7 +6,7 @@ services:
     image: abimusa-next:latest
     platform: linux/arm64
     ports:
-      - "3000:3000"
+      - "81:81"
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
@@ -14,4 +14,30 @@ services:
       - HOSTNAME=0.0.0.0
     tmpfs:
       - /tmp
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mariadb:
+    image: mariadb:11
+    platform: linux/arm64
+    ports:
+      - "3306:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD:-changeme}
+      - MARIADB_DATABASE=${MARIADB_DATABASE:-abimusa}
+      - MARIADB_USER=${MARIADB_USER:-abimusa}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD:-changeme}
+    volumes:
+      - ./mariadb_data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     restart: unless-stopped
