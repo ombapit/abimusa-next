@@ -1,0 +1,17 @@
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: abimusa-next:latest
+    platform: linux/arm64
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
